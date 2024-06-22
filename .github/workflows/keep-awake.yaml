@@ -1,0 +1,27 @@
+name: Keep Streamlit App Awake
+
+on:
+  workflow_dispatch: # Allow manual triggering
+  schedule:
+    - cron: '0 */6 * * *' # Run every 6 hours
+
+jobs:
+  keep-awake:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: ⚙️ Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install playwright
+
+    - name: 🎭 Install Playwright
+      run: playwright install --with-deps
+
+    - name: 🌚 Keep app awake
+      run: python keep_awake.py
