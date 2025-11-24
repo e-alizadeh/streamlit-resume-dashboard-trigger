@@ -9,8 +9,11 @@ jobs:
   keep-awake:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
-    - uses: actions/checkout@v3
+    - uses: 🛒 actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: '3.11'
@@ -25,3 +28,21 @@ jobs:
 
     - name: 🌚 Keep app awake
       run: python keep_awake.py
+
+    - name: 📝 Keep workflow active (orphan branch)
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Create/switch to orphan branch
+        git checkout --orphan workflow-keepalive || git checkout workflow-keepalive
+        
+        # Remove all files from staging
+        git rm -rf . 2>/dev/null || true
+        
+        # Create timestamp file
+        echo "Last workflow run: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" > last-run.txt
+        
+        git add last-run.txt
+        git commit -m "Update workflow timestamp"
+        git push -f origin workflow-keepalive
